@@ -1,0 +1,13 @@
+name: strat
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - requests
+  - python-dotenv
+  - pytz
+  - conda=23.9.0
+  - python-dateutil
+  - pandas
+  - pydantic
+  - pymongo
