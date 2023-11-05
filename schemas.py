@@ -5,7 +5,7 @@ import datetime
 from enum import Enum
 import json
 import numpy as np
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 import pytz
 from typing import List, Union, Optional, Generic, TypeVar
 
@@ -101,3 +101,27 @@ BASE_JSON_ENCODERS = {
 class Baseline(BaseModel):
     class Config:
         json_encoders = BASE_JSON_ENCODERS
+
+
+## [ Price Response Models ] ##
+class PriceAgg(Baseline):
+    vwap_price: float
+    volume: int
+    tick_datetime: datetime.datetime
+    open_price: Optional[float] = None
+    close_price: Optional[float] = None
+
+    @validator("tick_datetime", pre=False, always=True)
+    def reset_naive_tz(cls, value):
+        if value is None:
+            return None
+        
+        dt_val: datetime.datetime = value
+        if dt_val.tzinfo is None:
+            tz_dt = datetime.datetime.combine(dt_val.date(), dt_val.time(), tzinfo=pytz.utc)
+            return tz_dt
+        return dt_val.astimezone(pytz.utc)
+    
+class TickerPricesResponse(Baseline):
+    ticker: str
+    data: List[PriceAgg]
