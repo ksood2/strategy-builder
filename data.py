@@ -53,4 +53,5 @@ if __name__=="__main__":
         until_days_ago=0,
         ticker="TSLA"
     )
+    print(tsla_alerts[0].model_dump_json(indent=2, exclude={"timeline"}))
 
