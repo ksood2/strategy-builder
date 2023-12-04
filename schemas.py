@@ -7,7 +7,10 @@ import json
 import numpy as np
 from pydantic import BaseModel, validator
 import pytz
-from typing import List, Union, Optional, Generic, TypeVar
+from typing import (
+    List, Union, Optional, 
+    Generic, TypeVar, Literal
+)
 
 
 # JSON encoder for datetime objs
@@ -125,3 +128,76 @@ class PriceAgg(Baseline):
 class TickerPricesResponse(Baseline):
     ticker: str
     data: List[PriceAgg]
+
+## [ Ticker Timeline Models ] ##
+
+# e.g. 
+#       - GET /stocks/TSLA/timeline?since=7&until=6&period=5m
+#       - UptrendsWrapper.get_ticker_timeline_5m(
+#           ticker="TSLA", 
+#           since_dt=datetime.datetime.now()-datetime.timedelta(days=7), 
+#           until_dt=datetime.datetime.now()-datetime.timedelta(days=6)
+#         )
+
+class PriceTickInput(Baseline):
+    vwap_price: Optional[float] = None
+    volume: Optional[int] = None
+    open_price: Optional[float] = None
+    close_price: Optional[float] = None
+    last_valid_close: Optional[float] = None
+
+class SentimentTickInput(Baseline):
+    avg_rank: Optional[float] = None
+    avg_score: Optional[float] = None
+    mentions_count: Optional[int] = None
+    mentions_opt: Optional[int] = None
+    mentions_pess: Optional[int] = None
+    mentions_spec: Optional[int] = None
+    mentions_react: Optional[int] = None
+    mentions_certainty: Optional[int] = None
+
+class EarningsTickInput(Baseline):
+    quarter_num: int
+    fiscal_year: int
+    eps_estimate: Optional[float] = None
+    eps_actual: Optional[float] = None
+    revenue_estimate: Optional[int] = None
+    revenue_actual: Optional[int] = None
+    event_dt: Optional[datetime.datetime] = None
+    event_type: Literal["earnings"]
+
+class FilingTickInput(Baseline):
+    filing_type: str
+    filing_desc: str
+    event_dt: Optional[datetime.datetime] = None
+    event_type: Literal["filing"]
+
+class UnifiedTick(Baseline):
+    tick_datetime: datetime.datetime
+    period_start: datetime.datetime
+    period_end: datetime.datetime
+    sentiment: SentimentTickInput
+    price: PriceTickInput
+    events: Optional[List[Union[EarningsTickInput, FilingTickInput]]]
+
+    @validator("period_start", "period_end", "tick_datetime", pre=False, always=True)
+    def reset_naive_tz(cls, value):
+        if value is None:
+            return None
+        
+        dt_val: datetime.datetime = value
+        if dt_val.tzinfo is None:
+            tz_dt = datetime.datetime.combine(dt_val.date(), dt_val.time(), tzinfo=pytz.utc)
+            return tz_dt
+        return dt_val.astimezone(pytz.utc)
+
+class AggPeriod(str, Enum):
+    five_minute = "5m"
+    hourly = "1h"
+    daily = "1d"
+
+class UnifiedTimeline(Baseline):
+    ticker: str
+    agg_period: AggPeriod
+    data: List[UnifiedTick]
+    future_events: Optional[List[Union[EarningsTickInput, FilingTickInput]]]
