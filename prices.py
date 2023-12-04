@@ -31,25 +31,34 @@ def get_ticker_price_change_percent(ticker: str, start_dt: datetime.datetime, en
     return (close_price - open_price) / open_price
 
 
+# if __name__=="__main__":
+#     tsla_5d = get_ticker_price_change_percent(
+#         "TSLA", 
+#         start_dt=datetime.datetime.now()-datetime.timedelta(days=5),
+#         end_dt=datetime.datetime.now()
+#     )
+
+#     tsla_30d = get_ticker_price_change_percent(
+#         "TSLA", 
+#         start_dt=datetime.datetime.now()-datetime.timedelta(days=30),
+#         end_dt=datetime.datetime.now()
+#     )
+
+#     tsla_180d = get_ticker_price_change_percent(
+#         "TSLA", 
+#         start_dt=datetime.datetime.now()-datetime.timedelta(days=180),
+#         end_dt=datetime.datetime.now()
+#     )
+
 if __name__=="__main__":
-    tsla_5d = get_ticker_price_change_percent(
-        "TSLA", 
-        start_dt=datetime.datetime.now()-datetime.timedelta(days=5),
+    tsla_price = get_ticker_daily_prices(
+        "TSLA",
+        start_dt= datetime.datetime.now()-datetime.timedelta(days=60),
         end_dt=datetime.datetime.now()
     )
+print("TSLA:")
+# print(f"    5d: {'+' if tsla_5d > 0 else ''}{round(tsla_5d*100, 1)}%")
+# print(f"   30d: {'+' if tsla_30d > 0 else ''}{round(tsla_30d*100, 1)}%")
+# print(f"  180d: {'+' if tsla_180d > 0 else ''}{round(tsla_180d*100, 1)}%")
+# print(tsla_price)
 
-    tsla_30d = get_ticker_price_change_percent(
-        "TSLA", 
-        start_dt=datetime.datetime.now()-datetime.timedelta(days=30),
-        end_dt=datetime.datetime.now()
-    )
-
-    tsla_180d = get_ticker_price_change_percent(
-        "TSLA", 
-        start_dt=datetime.datetime.now()-datetime.timedelta(days=180),
-        end_dt=datetime.datetime.now()
-    )
-    print("TSLA:")
-    print(f"    5d: {'+' if tsla_5d > 0 else ''}{round(tsla_5d*100, 1)}%")
-    print(f"   30d: {'+' if tsla_30d > 0 else ''}{round(tsla_30d*100, 1)}%")
-    print(f"  180d: {'+' if tsla_180d > 0 else ''}{round(tsla_180d*100, 1)}%")
